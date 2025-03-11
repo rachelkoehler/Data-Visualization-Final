@@ -1,11 +1,4 @@
----
-title: "Data Vis Final"
-author: "Rachel, Zach, Zhaner"
-date: "2025-03-10"
-output: html_document
-editor_options: 
-  chunk_output_type: console
----
+
 # Figure 1
 ```{r setup, include=FALSE}
 setwd("~/Downloads")
@@ -38,8 +31,6 @@ figure1data$raceeth <- recode_factor(figure1data$race, `1`= "Non-Hispanic AIAN",
 figure1data$gender <- recode_factor(figure1data$sex, `1`= "Women", `2`= "Men")
 
 ```
-
-
 
 ```{r, fig.width=12, fig.height=6}
 
@@ -135,135 +126,3 @@ print(fig1_final_plot)
 # export to file
 ggsave(here("Data Vis Final Figures", "fig1_final_plot.png"), plot = fig1_final_plot, width=12, height=6)
 ```
-
-
-# Figure 2
-
-```{r}
-figure2nhisp <- read.delim("asmr-sex-race-hisp-1999-2018.txt")
-figure2hisp <- read.delim("asmr-sex-race-hisp-1999-2018.txt")
-
-# Read and sort Non-Hispanic data. Keep demographics, deaths, population, and create crude rates
-
-nhisp <- read_tsv(
-  here("asmr-sex-race-nhisp-1999-2018.txt"),
-  skip = 1,
-  col_names = c("notes", "gender", "gcode", "race", "rcode", "age", "acode",  
-                "year", "ycode", "deaths", "pop", "crate"),
-  n_max = 1760,
-  col_types = "cccfccfddddd"
-)
-
-nhisp2 <- nhisp %>%
-  select(gender, race, acode, year, deaths, pop) %>%
-  mutate(racen = as.numeric(race),
-         rate = deaths / pop * 100000)
-
-# read and sort Hispanic data. Keep demographics, deaths, population, and create crude rates
-hisp <- read_tsv(
-  here("asmr-sex-race-hisp-1999-2018.txt"),
-  skip = 1,
-  col_names = c("notes", "gender", "gcode", "age", "acode", "year", "ycode", 
-                "deaths", "pop", "crate"),
-  n_max = 440,
-  col_types = "ccccfddddd"
-)
-
-hisp2 <- hisp %>%
-  select(gender, acode, year, deaths, pop) %>%
-  mutate(racen = 5,   # Hispanic group identifier
-         rate = deaths / pop * 100000)
-
-# Combine Hispanics and non-Hispanics
-fig2_data_combined <- bind_rows(nhisp2, hisp2) %>%
-  select(-race, -rate) %>%  # Remove race and preliminary rate
-  mutate(
-    racen = recode_factor(as.character(racen),
-                          `1` = "Non-Hispanic AIAN", 
-                          `2` = "Non-Hispanic API", 
-                          `3` = "Non-Hispanic Black", 
-                          `4` = "Non-Hispanic White", 
-                          `5` = "Hispanic"),
-    age4 = recode_factor(as.character(acode),
-                         `1` = "<15 yrs", 
-                         `1-4` = "<15 yrs", 
-                         `5-14` = "<15 yrs", 
-                         `15-24` = "15-44 yrs", 
-                         `25-34` = "15-44 yrs",
-                         `35-44` = "15-44 yrs", 
-                         `45-54` = "45-64 yrs", 
-                         `55-64` = "45-64 yrs",
-                         `65-74` = "65+ yrs", 
-                         `75-84` = "65+ yrs", 
-                         `85+` = "65+ yrs")
-  ) %>%
-  group_by(gender, racen, age4, year) %>% 
-  select(-acode) %>%  # acode is no longer needed after recoding
-  summarise(across(c(deaths, pop), sum), .groups = "drop") %>%  # sum over the groups
-  mutate(rate = deaths / pop * 100000) %>%
-  filter(racen != "Non-Hispanic AIAN")  # Exclude AIAN if needed
-
-# View the combined data
-print(fig2_data_combined )
-
-```
-
-```{r}
-library(grid)
-# men
-m2 <- ggplot(subset(combined, gender == "Male"), 
-       aes(x = year, y = rate, colour = racen)) + 
-  geom_line(show.legend=T, size=1.5) + 
-  facet_wrap(~ age4, nrow=1, scales="free") +
-  scale_color_manual(name="Race-Ethnicity", 
-    values=c("#e41a1c", "#377eb8", "#4daf4a", "#984ea3")) + 
-  labs(y = "", x = "") +
-  ggtitle(" ") + 
-  scale_x_continuous(breaks=c(2005,2015)) +
-  stheme +
-  theme(strip.text = element_text(face = "bold"))  # Bold facet titles
-
-# women
-w2 <- ggplot(subset(combined, gender == "Female"), 
-       aes(x = year, y = rate, colour = racen)) + 
-  geom_line(show.legend=T, size=1.5) + 
-  facet_wrap(~ age4, nrow=1, scales="free") +
-  scale_color_manual(name="Race-Ethnicity", 
-    values=c("#e41a1c", "#377eb8", "#4daf4a", "#984ea3")) + 
-  labs(y = "", x = "") +
-  ggtitle(" ") + 
-  scale_x_continuous(breaks=c(2005,2015)) + 
-  stheme +
-  theme(strip.text = element_text(face = "bold"))
-
-# men and women together
-
-library(ggplot2)
-library(patchwork)
-
-# Create the main plot
-fig1_final_plot <- (w2 / m2) + 
-  plot_layout(guides = "collect") & 
-  theme(
-    legend.position = "bottom",
-    legend.direction = "vertical",
-    legend.justification = "right",
-    legend.title = element_text(face = "bold", size = 12),
-    legend.text = element_text(size = 12)
-  )
-
-# Create a centered y-axis label
-y_label <- textGrob(
-  "Age-specific death rates (per 100,000)", 
-  rot = 90, gp = gpar(fontface = "bold", fontsize = 15)
-)
-
-# Arrange the label and plot together
-final_plot <- grid.arrange(
-  arrangeGrob(fig1_final_plot, left = y_label)
-)
-fig1_final_plot
-
-```
-
-
