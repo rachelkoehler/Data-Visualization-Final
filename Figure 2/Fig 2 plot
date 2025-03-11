@@ -1,0 +1,46 @@
+
+
+
+```{r}
+# men and women together
+
+library(ggplot2)
+library(cowplot)
+library(ggplot2)
+library(cowplot)
+
+
+legend <- get_legend(
+  w2 + theme(legend.position = "bottom", 
+             legend.title = element_text(face = "bold"))  # Make title bold
+)
+
+# Create the combined plot without the legend
+fig_2_combined_plot <- plot_grid(
+  w2 + theme(legend.position = "none"), 
+  m2 + theme(legend.position = "none"), 
+  ncol = 1,  
+  align = "v",  
+  axis = "l",  # Align left axes to prevent misalignment warning
+  rel_heights = c(1, 1)  
+)
+
+# Final plot with Y-label and legend
+fig2_final_plot <- ggdraw() +
+  draw_plot(fig_2_combined_plot, x = 0.04, y = 0, width = 0.92, height = 1) +
+  draw_label("Age-specific death rates (per 100,000)", x = 0.01, y = 0.5, angle = 90, vjust = 1.5, fontface = "bold", size = 14) +
+  draw_label("Women", x = 0.15, y = .92, hjust = 1, fontface = "plain", size = 15) +
+  draw_label("Men", x = 0.14, y = 0.43, hjust = 1, fontface = "plain", size = 15)
+
+# Add legend at the bottom right
+final_with_legend <- plot_grid(
+  fig2_final_plot, legend,
+  ncol = 1, 
+  rel_heights = c(1, 0.1), # Reduce height of legend
+  align = "v",
+  axis = "l"  # Align left axes to prevent misalignment warning
+)
+
+# Print the final plot with legend
+print(final_with_legend)
+```
