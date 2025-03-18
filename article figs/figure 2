@@ -1,0 +1,35 @@
+black_men_data <- fig2_data_combined %>%
+  filter(gender == "Male", racen == "Non-Hispanic Black", year >= 2000) %>%
+  mutate(
+    line_color = ifelse(age4 == "15-44 yrs", "highlight", "neutral"),  # Color lines
+    bg_color = ifelse(age4 == "15-44 yrs", "#F5CAC7", "#EAEBEB")  # Background color for each facet
+  )
+
+# Plot with facet-specific background colors
+ggplot(black_men_data, aes(x = year, y = rate, group = age4, color = line_color)) +
+  geom_rect(aes(xmin = -Inf, xmax = Inf, ymin = -Inf, ymax = Inf, fill = bg_color), alpha = 0.3) +  # Background fill
+  geom_line(size = 1) +
+  geom_point(size = 1.5) +
+  facet_wrap(~age4, ncol = 1, scales = "free_y", strip.position = "right") +  # Stack vertically, labels on right
+  scale_color_manual(values = c("highlight" = "black", "neutral" = "black")) +  # Custom line colors
+  scale_fill_identity() +  # Use colors from data without needing a legend
+  labs(
+    title = "Death Rate Trends for Non-Hispanic Black Males (2000-2018)",
+    subtitle = "Crude death rates per 100,000 for Non-Hispanic Black males, showing a disproportionately high mortality burden in the 15-44 age group",
+    caption = "Source: Centers for Disease Control and Prevention (CDC) WONDER",
+    x = " ",
+    y = "Crude Death Rate (per 100,000)"
+  ) +
+  theme_minimal() +
+  theme(
+    strip.text.y = element_text(size = 14, face = "bold"),  # Strip text formatting
+    text = element_text(size = 14),
+    strip.background = element_blank(),  # Remove default strip background
+    axis.text.y = element_text(size = 10),  # Make y-axis labels smaller
+    plot.title = element_text(size = 16, face = "bold", hjust = 0.5),  # Bold title
+    plot.subtitle = element_text(size = 12, color = "gray40", hjust = 0.5),  # Subtitle formatting
+    plot.caption = element_text(size = 10, color = "gray50"),  # Caption formatting
+    panel.background = element_rect(fill = "white", color = NA),  # Overall plot background white
+    legend.position = "none"  # Hide legend for cleaner visualization
+  ) +
+  scale_x_continuous(limits = c(2000, 2018), breaks = seq(2000, 2018, 2)) 
