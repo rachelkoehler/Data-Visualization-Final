@@ -1,0 +1,14 @@
+---
+title: "Abstract & Summary"
+output: pdf_document
+---
+The paper examines the recent decline in life expectancy in the United States, focusing on the period from 2015 to 2017, when life expectancy dropped for three consecutive years. The decline has affected nearly all race/ethnic and gender groups, and is attributed to several factors, including a rise in opioid overdose deaths, suicide, homicide, and Alzheimer’s disease. The slowdown in the decline of cardiovascular disease mortality has also contributed to the stagnation in life expectancy. The authors analyze mortality trends across different demographic groups, including race/ethnicity, gender, and age, and explore the geographic and socioeconomic dimensions of these trends. Additionally, the authors argue that interventions targeting opioid overdoses, suicide, and CVD are urgently needed to reverse the decline in life expectancy.
+
+**Figures to Replicate:**
+
+* **Figure 1**: Life expectancy at birth in the United States, by gender and race/ethnicity, 1999–2018.
+* **Figure 2**: Age-specific mortality rates in the United States, by gender and race/ethnicity, 1999–2018.
+* **Figure 4**: Trends in age-adjusted unintentional poisoning death rates, 1999–2018, by gender and race/ethnicity.
+* **Figure 5**: Trends in age-adjusted suicide death rates, 1999–2018, by gender and race/ethnicity.
+* **Figure 6**: Age-adjusted cardiovascular disease death rates, by age group, gender, and race/ethnicity, 1990–2017.
+* **Figure 7**: Age-adjusted alcohol-related death rates, by age group, gender, and race/ethnicity, 1999–2018.

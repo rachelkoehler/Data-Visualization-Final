@@ -1,0 +1,25 @@
+---
+title: "Reflection Prompt"
+output: pdf_document
+---
+# Part 1: Challenges faced
+
+## Data Processing: 
+One of the most significant challenges we faced was reproducing visualizations from the paper. For instance, some of the original data processing steps were written in Stata, and translating these into R proved to be a complex task. Despite our efforts, discrepancies persisted, as the graphs generated from the original code did not fully match those presented in the paper. This required us to put extra efforts to ensure that the details—such as axis scales, labels, and visual styling—closely matched the originals. This experience underscored the importance of clear documentation and highlighted the challenges of replicating analyses across different software platforms.
+
+## Visualization Choices:
+Another problem that we have faced is the limited data features we have, so it’s hard to come up with different topics despite those included in the paper. Additionally, we had to rethink producing visualizations to make it more engaging for a public audience. This involved deciding which trends to highlight and how to frame them in a way that would resonate emotionally. For example, we chose to emphasize the contribution of leading causes of death to life expectancy decline with bright colors and clear labels to make the graph more accessible.
+
+## Narrative Structure: 
+Creating a compelling narrative for our visualizations was challenging, particularly in incorporating sufficient background knowledge. The original paper excelled in contextual framing, offering concise yet insightful explanations for each cause of death. In contrast, when visualizing death rate trends for non-Hispanic Black males, we were unable to include cultural or socioeconomic factors due to a lack of supporting literature. This experience highlighted the importance of thoughtful narrative design in public health storytelling. Moving forward, we aim to enhance our contextual framing by linking trends to specific policies or interventions.
+
+# Part 2: Understanding of public health storytelling 
+
+## Audience Awareness:
+One of the key points we learned was the importance of tailoring visualizations to the target audience. A graph intended for the general public (e.g., NYTimes) should prioritize simplicity and public impact, while a graph for researchers might focus on precision and detail. 
+
+## Comparative Storytelling:
+We also realized that different types of graphs can tell different stories, even with the same data. In our project, we experimented with both formats and utilizing line plots to effectively show death rate trends over time, while a stacked bar chart better highlights disparities between and within groups.
+
+## Contextual Framing:
+A good public health story doesn’t just present data—-it provides context and engages emotions. For example, by highlighting the human impact of rising death rates—-such as the cause-specific mortality rates—-the paper was able to make the data more relatable and compelling. This contextual framing helped viewers understand why the data mattered and how it connected to broader public health issues. This approach not only informs but also motivates action, which is the ultimate goal of public health communication.
