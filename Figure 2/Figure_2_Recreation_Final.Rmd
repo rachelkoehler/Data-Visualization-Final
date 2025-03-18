@@ -1,0 +1,163 @@
+---
+title: "Figure 2 Recreation"
+author: "Zachary Blundell"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+# Figure 2
+
+```{r}
+library(tidyverse)
+library(plotly)
+library(here)
+library(ggrepel)
+library(patchwork)
+
+figure2nhisp <- read.delim("asmr-sex-race-hisp-1999-2018.txt")
+figure2hisp <- read.delim("asmr-sex-race-hisp-1999-2018.txt")
+
+# Read and sort Non-Hispanic data. Keep demographics, deaths, population, and create crude rates
+
+nhisp <- read_tsv(
+  here("C:/Users/zachb/OneDrive/Documents/FMPH491 Data Vis/asmr-sex-race-nhisp-1999-2018.txt"),
+  skip = 1,
+  col_names = c("notes", "gender", "gcode", "race", "rcode", "age", "acode",  
+                "year", "ycode", "deaths", "pop", "crate"),
+  n_max = 1760,
+  col_types = "cccfccfddddd"
+)
+
+nhisp2 <- nhisp %>%
+  select(gender, race, acode, year, deaths, pop) %>%
+  mutate(racen = as.numeric(race),
+         rate = deaths / pop * 100000)
+
+# read and sort Hispanic data. Keep demographics, deaths, population, and create crude rates
+hisp <- read_tsv(
+  here("C:/Users/zachb/OneDrive/Documents/FMPH491 Data Vis/asmr-sex-race-hisp-1999-2018.txt"),
+  skip = 1,
+  col_names = c("notes", "gender", "gcode", "age", "acode", "year", "ycode", 
+                "deaths", "pop", "crate"),
+  n_max = 440,
+  col_types = "ccccfddddd"
+)
+
+hisp2 <- hisp %>%
+  select(gender, acode, year, deaths, pop) %>%
+  mutate(racen = 5,   # Hispanic group identifier
+         rate = deaths / pop * 100000)
+
+# Combine Hispanics and non-Hispanics
+fig2_data_combined <- bind_rows(nhisp2, hisp2) %>%
+  select(-race, -rate) %>%  # Remove race and preliminary rate
+  mutate(
+    racen = recode_factor(as.character(racen),
+                          `1` = "Non-Hispanic AIAN", 
+                          `2` = "Non-Hispanic API", 
+                          `3` = "Non-Hispanic Black", 
+                          `4` = "Non-Hispanic White", 
+                          `5` = "Hispanic"),
+    age4 = recode_factor(as.character(acode),
+                         `1` = "<15 yrs", 
+                         `1-4` = "<15 yrs", 
+                         `5-14` = "<15 yrs", 
+                         `15-24` = "15-44 yrs", 
+                         `25-34` = "15-44 yrs",
+                         `35-44` = "15-44 yrs", 
+                         `45-54` = "45-64 yrs", 
+                         `55-64` = "45-64 yrs",
+                         `65-74` = "65+ yrs", 
+                         `75-84` = "65+ yrs", 
+                         `85+` = "65+ yrs")
+  ) %>%
+  group_by(gender, racen, age4, year) %>% 
+  select(-acode) %>%  # acode is no longer needed after recoding
+  summarise(across(c(deaths, pop), sum), .groups = "drop") %>%  # sum over the groups
+  mutate(rate = deaths / pop * 100000) %>%
+  filter(racen != "Non-Hispanic AIAN")  # Exclude AIAN if needed
+
+# View the combined data
+print(fig2_data_combined )
+
+```
+
+
+
+```{r}
+library(grid)
+
+library(patchwork)
+
+# Load necessary libraries
+library(ggplot2)
+library(patchwork)
+library(cowplot)  # For ggdraw() and draw_label()
+
+# Define a shared theme with the legend positioned at the bottom
+theme_with_legend <- theme_classic() +
+  theme(
+    plot.title = element_text(size = 16, face = "bold"),
+    plot.subtitle = element_text(size = 14),
+    axis.text.x = element_text(size = 12, colour = "black"),
+    axis.text.y = element_text(size = 12, colour = "black"),
+    axis.title.x = element_text(face = "bold", size = 12),
+    axis.title.y = element_text(face = "bold", size = 14),
+    panel.grid = element_blank(),
+    panel.border = element_rect(color = "black", fill = NA),
+    axis.ticks = element_line(color = "black"),
+    strip.text = element_text(size = 12),
+    strip.background = element_rect(colour = "white"),
+    legend.position = "bottomright",  # Set legend to bottom
+    legend.justification = c(1, 0),  # Align legend to bottom right
+    legend.title = element_text(face = "bold"),
+    legend.text = element_text(size = 10),
+    legend.background = element_blank(),  # Remove legend box
+    legend.key = element_blank()  # Remove legend key background
+  )
+
+# Women plot (w2)
+w2 <- ggplot(subset(fig2_data_combined, gender == "Female"), 
+             aes(x = year, y = rate, colour = racen)) + 
+  geom_line(size = 1.5) + 
+  facet_wrap(~ age4, nrow = 1, scales = "free") +
+  scale_color_manual(name = "Race-Ethnicity", 
+                     values = c("#e41a1c", "#377eb8", "#4daf4a", "#984ea3")) + 
+  guides(color = guide_legend(ncol = 1)) +  # Stack legend vertically
+  labs(y = "", x = " ") +
+  ggtitle("Women") +
+  scale_x_continuous(breaks = c(2005, 2015)) +
+  theme_with_legend +
+  theme(strip.text = element_text(face = "plain"))
+
+# Men plot (m2)
+m2 <- ggplot(subset(fig2_data_combined, gender == "Male"), 
+             aes(x = year, y = rate, colour = racen)) + 
+  geom_line(size = 1.5) + 
+  facet_wrap(~ age4, nrow = 1, scales = "free") +
+  scale_color_manual(name = "Race-Ethnicity", 
+                     values = c("#e41a1c", "#377eb8", "#4daf4a", "#984ea3")) + 
+  guides(color = guide_legend(ncol = 1)) +  # Stack legend vertically
+  labs(y = "", x = " ") +
+  ggtitle("Men") +
+  scale_x_continuous(breaks = c(2005, 2015)) +
+  theme_with_legend +
+  theme(strip.text = element_text(face = "plain"))
+
+# Combine the plots and correctly collect the legend at the bottom
+fig_2_combined_plot <- (w2 / m2) + 
+  plot_layout(guides = "collect") & 
+  theme(legend.position = "bottom",
+        legend.justification = "right")  # Align legend to the right within the bottom
+
+# Add y-axis label with cowplot
+fig2_final_plot <- ggdraw() +
+  draw_plot(fig_2_combined_plot, x = 0.04, y = 0, width = 0.92, height = 1) +  
+  draw_label("Age-specific death rates (per 100,000)", 
+             x = 0.01, y = 0.5, angle = 90, 
+             vjust = 1.5, fontface = "bold", size = 14)
+
+# Display the final plot
+print(fig2_final_plot)
+
+```
