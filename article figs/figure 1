@@ -1,0 +1,74 @@
+# Read data
+rawd <- read_csv("le-age-cause-decomp-2014-2017.csv")
+
+# Summarize by sex, race, and cause of death
+rawt <- rawd %>%
+  group_by(sex, race, cod) %>%
+  summarise(total = sum(cont) * -1, .groups = 'drop')
+
+# Create grouping for all causes ("Total change")
+tot <- aggregate(rawt$total, list(sex = rawt$sex, race = rawt$race), FUN = sum)
+tot$cod <- 15
+colnames(tot)[3] <- "total"
+
+# Bind together
+raw <- rawt %>%
+  bind_rows(tot)
+
+# Recode gender as a factor
+raw$gender <- recode_factor(raw$sex, `1` = "Women", `2` = "Men")
+
+# Recode race-ethnicity as a factor
+raw$raceeth <- recode_factor(raw$race, 
+  `1` = "Non-Hispanic API", 
+  `2` = "Non-Hispanic Black", 
+  `3` = "Non-Hispanic White", 
+  `4` = "Hispanic"
+)
+
+# Recode causes of death
+raw$codf <- recode_factor(raw$cod, 
+  `1` = "Cardiovascular", `2` = "Cancers", 
+  `3` = "Diabetes", `4` = "Alzheimer's", `5` = "Flu/Pneumonia",
+  `6` = "HIV", `7` = "Respiratory Disease", `8` = "Liver Disease", 
+  `9` = "Kidney Disease", `10` = "Motor Vehicle Crashes", 
+  `11` = "Unintentional Poisoning", `12` = "Suicide", 
+  `13` = "Homicide", `14` = "All Other Causes", 
+  `15` = "Total Change"
+)
+
+# Summarize by gender, race, and cause
+raw15 <- raw %>%
+  group_by(gender, raceeth, codf) %>%
+  summarise(total = sum(total), .groups = 'drop')
+
+# Remove "Total Change"
+raw15_filtered <- raw15 %>%
+  filter(codf != "Total Change")
+
+  # Vertical stacked bar chart 
+ggplot(raw15_filtered, aes(x = raceeth, y = total, fill = codf)) +
+  geom_bar(stat = "identity", position = "stack") +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "black") +  # Horizontal line at y=0
+  facet_wrap(~gender, nrow = 1) +  # Side-by-side comparison of Women and Men
+  theme_minimal(base_size = 16) +  # Improve text readability
+  labs(
+    title = "Contribution of Leading Causes of Death to Life Expectancy Decline (2014-2017)",
+    subtitle = "The largest decline during this period was for non-Hispanic Black men, primarily due to unintentional poisoning and homicide,\nwhich together accounted for more than 75% of their decline in life expectancy.",
+    x = " ",
+    y = "Years of Life Expectancy Change",
+    fill = "Cause of Death",
+    caption = "Data Source: CDC Mortality Statistics (2014-2017). Negative values indicate a decline in life expectancy."
+  ) +
+  theme(
+    plot.title = element_text(face = "bold", size = 20, hjust = 0.5),  # Center title
+    plot.subtitle = element_text(size = 14, hjust = 0.5),  # Center subtitle
+    plot.caption = element_text(size = 12, hjust = 0.5),  # Center caption
+    strip.text = element_text(size = 18, face = "bold"),  # Larger facet labels (Women/Men)
+    axis.text.x = element_text(size = 12, angle = 45, hjust = 1),  # Rotate x-axis labels
+    axis.text.y = element_text(size = 12),  # Increase readability of y-axis
+    legend.text = element_text(size = 12),  # Larger legend text
+    legend.position = "bottom",  # Move legend to bottom
+    legend.title = element_text(size = 16, face = "bold")  # Make legend title larger
+  ) +
+  scale_fill_manual(values = custom_colors)  # Custom color mappin
