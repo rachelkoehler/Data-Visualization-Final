@@ -68,8 +68,8 @@ m <- ggplot(subset(raw, sex == 0 & age4>0 & raceeth!=2),
 
   scale_color_manual(name="Race-Ethnicity", 
     values=c("#4daf4a","#377eb8", "#e41a1c", "#984ea3")) +
-  labs(y = "Cardiovascular disease death rates (per 100,000)",  # Y-axis label
-       x = "Year") +  # X-axis label
+  labs(y = "",  # Y-axis label
+       x = "") +  # X-axis label
   ggtitle("Men") + 
   stheme +
   theme(
@@ -89,63 +89,124 @@ w <- ggplot(subset(raw, sex == 1 & age4>0 & raceeth!=2),
   theme(axis.text.x = element_blank(),
         axis.line.x = element_blank())
 
-# Combined plot
-p <- w / m + plot_layout(guides = "collect") & 
-  theme(legend.position = 'bottom', 
-        legend.text = element_text(size=12),
-        legend.title = element_text(size=14))
-
-p2 <- p + plot_annotation(
-  title = 'Age-adjusted cardiovascular disease death rates per 100,000, by gender and race-ethnicity',
-  theme = theme(plot.title = element_text(size = 18)))
 
 
 ```
 
-#```{r}
+
+```{r}
+f6p <- w / m + plot_layout(widths = rep(40, 4), heights = rep(4, 2))
+y.grob <- textGrob("Cardiovascular disease death rates (per 100,000)", 
+                   gp=gpar(fontface="bold", fontsize=15), rot=90)
+x.grob <- textGrob("Year", 
+                   gp=gpar(fontface="bold",  fontsize=15))
+Fig_6_final<-grid.arrange(patchworkGrob(f6p), left = y.grob, bottom = x.grob)
+
+plot(Fig_6_final)
+```
+
+
+
+```{r}
+#### Deaths from CVD (age-adjusted within broad age groups)
+##### from SEER*Stat
+
+# Raw data, read out demographics,year, and the cvd outcomes alpong with count/pop
+
+raw <- read_tsv("aaasdr-cvd-1990-2017.txt",
+                 col_names=c("sex", "raceeth", "age4", "year", "aadr", "count", "pop"), col_types = "ddddddd")
+
+# rescale year (since it beings at 0 instead of 1990)
+raw$year <- raw$year + 1990
+
+# race-ethnicity as factor, delineated by 0-4 in the CDC WONDER data
+raw$raceethf <- recode_factor(raw$raceeth, `0`= "Non-Hispanic White", `1`= "Non-Hispanic Black", `2`= "Non-Hispanic AI/AN", `3`= "Non-Hispanic API", `4`= "Hispanic")
+
+# age-group, 4 seperate groups, final plot only uses 3
+raw$age4f <- recode_factor(raw$age4, `0`= "15-34yrs", `1`= "35-54yrs", `2`= "55-64yrs", `3`= "65+yrs")
+
+# Create annotation data for the 35-54 age group in 2017 (Women)
+annot_data <- raw %>%
+  filter(
+    sex == 1,              # Women
+    age4f == "35-54yrs",   # First panel
+    year == 2017,          # Use final year
+    raceeth != 2           # Exclude AI/AN
+  )
+###Set custom theme of plots that matches paper (given in code)
 stheme <- theme_classic() + 
   theme(
     plot.title = element_text(size = 18, face = "bold"), 
-    axis.text.x = element_text(size = 14, colour = "black"), 
-    axis.text.y = element_text(size = 14, colour = "black"), 
-    legend.position = "none",  # Remove external legend
-    panel.grid = element_blank(),
-    axis.line = element_line(colour = "black"),
-    axis.ticks = element_line(colour = "black"),
-    strip.text = element_text(size = 14, face = "bold"), 
+    plot.subtitle = element_text(size=16),
+    axis.text.x = element_text(size = 16, colour = "black"), 
+    axis.title.y = element_text(size=16, angle=90, colour="black"), 
+    axis.text.y = element_text(size = 16, colour="black"), 
+    legend.position="none",
+    panel.grid = element_blank(),  # Remove all grid lines
+    axis.line = element_line(colour = "black"),  # Visible axis lines
+    axis.ticks = element_line(colour = "black"),  # Ensure ticks are visible
+    strip.text = element_text(size = 16), 
     strip.background = element_rect(colour = "white"),
-    panel.border = element_rect(colour = "black", fill = NA, size = 1)
+    panel.border = element_rect(colour = "black", fill = NA, size = 0.5)  # Border around each panel
   )
 
-# Main plot
-p <- ggplot(subset(raw, raceeth != 2),  # Exclude AI/AN as in the reference image
+# Plot for Men (Bottom - Keep x-axis), only keep age groups that are >35
+m <- ggplot(subset(raw, sex == 0 & age4>0 & raceeth!=2), 
+       aes(x = year, y = aadr, colour = as.factor(raceethf))) + 
+  geom_line(size=1.5) + 
+  facet_wrap(~ age4f, nrow=1, scales = "free_y") +
+
+  scale_color_manual(name="Race-Ethnicity", 
+    values=c("#4daf4a","#377eb8", "#e41a1c", "#984ea3")) +
+  labs(y = "",  # Y-axis label
+       x = "") +  # X-axis label
+  ggtitle("Men") + 
+  stheme +
+  theme(
+    axis.title.y = element_text(size = 18, hjust = -0.01, colour = "black"),  # Centered and larger
+    axis.title.x = element_text(size = 16, colour = "black")  # Increased size
+  )
+
+# Plot for Women (Top - Remove x-axis elements), only keep age groups that are >35
+# Plot for Women with annotations
+
+w <- ggplot(subset(raw, sex == 1 & age4>0 & raceeth!=2), 
        aes(x = year, y = aadr, colour = raceethf)) + 
-  geom_line(size = 1.5) + 
-  facet_grid(sex ~ age4f, scales = "free_y") +  # Match facet layout in reference graph
-  scale_x_continuous(
-    breaks = seq(1990, 2020, by = 10),  # Tick marks at 1990, 2000, 2010, 2020
-    expand = expansion(mult = c(0.05, 0.05))
+  geom_line(size=1.5) + 
+  # Add text labels at 2017 endpoints
+  geom_text(
+    data = annot_data,
+    aes(label = raceethf),
+    hjust = 1,          # Align text to the left of points
+    nudge_x = -2,         # Small horizontal offset
+    nudge_y=3.25,
+    size = 4,              # Match paper's text size
+    show.legend = FALSE
   ) +
-  scale_color_manual(values = c("#377eb8", "#e41a1c", "#4daf4a", "#984ea3")) + 
-  labs(y = "Cardiovascular disease death rates (per 100,000)", x = "Year") + 
-  ggtitle("Age-adjusted cardiovascular disease death rates per 100,000, by gender and race-ethnicity") + 
-  stheme
+  coord_cartesian(
+    clip = "off",          # Allow labels outside plot area
+    xlim = c(1990, 2017)   # Maintain original x-axis limits
+  ) +
+  facet_wrap(~ age4f, nrow=1, scales = "free_y") +
+  scale_color_manual(values=c("#4daf4a","#377eb8", "#e41a1c", "#984ea3")) +
+  labs(y = "", x = "") + 
+  ggtitle("Women") + 
+  stheme +
+  theme(
+    axis.text.x = element_blank(),
+    axis.line.x = element_blank(),
+    plot.margin = margin(r = 40)  # Add right margin for labels
+  )
 
-# Add race-ethnicity labels manually inside first facet (Women, 35-54 years)
-p <- p + geom_text_repel(
-  data = raw %>%
-         filter(sex == 1, age4f == "35-54 years") %>%
-         group_by(raceethf) %>%
-         filter(year == min(year)),  # Place labels near the start
-  aes(label = raceethf),
-  size = 5,
-  direction = "y",
-  nudge_x = -2,
-  min.segment.length = 0,
-  segment.color = "grey50",
-  show.legend = FALSE
-)
+###Combine the plots and add in titles of each respective axis
+f6p <- w / m + plot_layout(widths = rep(40, 4), heights = rep(4, 2))
+y.grob <- textGrob("Cardiovascular disease death rates (per 100,000)", 
+                   gp=gpar(fontface="bold", fontsize=15), rot=90)
+x.grob <- textGrob("Year", 
+                   gp=gpar(fontface="bold",  fontsize=15))
+Fig_6_final<-grid.arrange(patchworkGrob(f6p), left = y.grob, bottom = x.grob)
 
-# Display final plot
-print(p)
-#```
+plot(Fig_6_final)
+
+```
+
