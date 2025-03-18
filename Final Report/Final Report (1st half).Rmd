@@ -1,0 +1,30 @@
+---
+title: "Declining Life Expectancy in the United States: Missing the Trees for the Forest"
+author: Rachel Koehler, Zach Blundell, Zhaner Mou
+output: pdf_document
+---
+# Introduction
+
+## Motivation
+The recent decline in life expectancy in the United States raises critical questions about the health and well-being of the population. Understanding the causes of this decline is essential for designing effective public health interventions and policies to reverse this declining trend.
+
+## Detailed Background
+The paper examines the recent decline in life expectancy in the United States, focusing on the period from 2015 to 2017, when life expectancy dropped for three consecutive years. The decline has affected nearly all race/ethnic and gender groups, and is attributed to several factors, including a rise in opioid overdose deaths, suicide, homicide, and Alzheimer’s disease, as well as a slowdown in the decline of cardiovascular disease mortality. These trends indicate the importance of addressing the underlying causes, including socioeconomic disparities and geographic inequalities.
+
+## Problem Statement
+This article addresses the problem of declining life expectancy in the U.S. by examining the contributing factors across demographic groups, causes of death, and geographic regions.
+
+## Summary of Main Results
+This article shows that the recent decline in U.S. life expectancy is primarily driven by increases in opioid overdose deaths, homicide, and Alzheimer’s disease, with significant contributions from socioeconomic and geographic disparities, while also highlighting the role of stagnating declines in cardiovascular disease mortality.
+
+# Approach
+
+## Data
+The study uses mortality data from the Centers for Disease Control and Prevention (CDC) WONDER database, which includes detailed cause-of-death information by age, gender, race/ethnicity, and geographic location from 1999 to 2018.
+
+## Methods
+The authors employ descriptive analyses to examine trends in life expectancy and mortality rates across demographic groups (race/ethnicity, gender, and age). They provide a detailed breakdown of mortality trends by specific causes of death, such as unintentional poisonings, suicide, homicide, CVD, and Alzheimer’s disease, and use age-adjusted death rates to compare trends across demographic groups, revealing significant disparities in how these causes affect different populations.
+
+# Results
+
+# Discussion
