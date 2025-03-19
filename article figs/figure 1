@@ -46,7 +46,15 @@ raw15 <- raw %>%
 raw15_filtered <- raw15 %>%
   filter(codf != "Total Change")
 
-  # Vertical stacked bar chart 
+# Custom color palette with more than 12 colors
+# Custom color palette with enough colors
+custom_colors <- c(
+  "#e41a1c", "#377eb8", "#4daf4a", "#984ea3", "#ff7f00", "#ffff33", "#a65628", 
+  "#f781bf", "#999999", "#66c2a5", "#fc8d62", "#8da0cb", "#e78ac3", "#a6d854", "#ffd92f"
+)
+
+
+# Vertical stacked bar chart 
 ggplot(raw15_filtered, aes(x = raceeth, y = total, fill = codf)) +
   geom_bar(stat = "identity", position = "stack") +
   geom_hline(yintercept = 0, linetype = "dashed", color = "black") +  # Horizontal line at y=0
@@ -72,3 +80,4 @@ ggplot(raw15_filtered, aes(x = raceeth, y = total, fill = codf)) +
     legend.title = element_text(size = 16, face = "bold")  # Make legend title larger
   ) +
   scale_fill_manual(values = custom_colors)  # Custom color mappin
+```
