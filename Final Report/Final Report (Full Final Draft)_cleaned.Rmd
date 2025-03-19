@@ -43,7 +43,7 @@ library(knitr)
 ```
 
 ## FIGURE 1 PLOT AND CODE
-```{r echo=FALSE, message=FALSE, warning=FALSE}
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=12, fig.height=8}
 ########## FIGURE 1 ##########
 
 figure1data <- read.delim("jp-le-age-sex-race.txt")
@@ -154,6 +154,7 @@ fig1_final_plot <- grid.arrange(
     rot = 90
   )
 )
+
 ```
 
 
@@ -162,7 +163,7 @@ Life expectancy at birth in the United States, by gender and race/ethnicity, 199
 This plot shows the general trend that for every race/eth category given in the data, there is a general increase in life expectency from 2000-2017. However, there is still a persistent gap between men and women for every race/eth category
 
 ## FIGURE 2 PLOT AND CODE
-```{r echo=FALSE, message=FALSE, warning=FALSE}
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.width=12, fig.height=8}
 ########## FIGURE 2 ##########
 
 figure2nhisp <- read.delim("asmr-sex-race-hisp-1999-2018.txt")
@@ -296,6 +297,7 @@ fig2_final_plot <- ggdraw() +
 
 # Display the final plot
 plot(fig2_final_plot)
+
 ```
 
 
@@ -305,7 +307,7 @@ This plot shows how the age specific death rates vary across age ranges. From th
 
 
 ## FIGURE 4 PLOT AND CODE (passed over 3 due to needing STATA)
-```{r echo=FALSE, warning=FALSE}
+```{r echo=FALSE, warning=FALSE, fig.width=12, fig.height=8}
 ########## FIGURE 4 ##########
 
 ### STEP1: data processing
@@ -527,6 +529,7 @@ y.grob <- textGrob("Age-adjusted death rates for \n unintentional poisoning (per
 x.grob <- textGrob("Year", 
                    gp=gpar(fontface="bold",  fontsize=15))
 grid.arrange(patchworkGrob(F4_p), left = y.grob, bottom = x.grob)
+
 ```
 
 
@@ -536,7 +539,7 @@ In this figure, we see that across every race/eth group, there is an increase in
 
 
 ## FIGURE 5 PLOT AND CODE
-```{r echo=FALSE, warning=FALSE}
+```{r echo=FALSE, warning=FALSE, fig.width=12, fig.height=8}
 ########## FIGURE 5 ##########
 
 ### STEP1: data processing
@@ -762,6 +765,7 @@ y.grob <- textGrob("Age-adjusted death rates for \nsuicide (per 100,000)",
 x.grob <- textGrob("Year", 
                    gp=gpar(fontface="bold",  fontsize=15))
 grid.arrange(patchworkGrob(F5_p), left = y.grob, bottom = x.grob)
+
 ```
 
 Trends in age-adjusted suicide death rates, 1999–2018, by gender and race/ethnicity (ICD-10 codes X60–X84). Authors’ calculations of data from CDC WONDER (13; data are from the Multiple Cause of Death Files, 1999–2018). 
@@ -770,7 +774,7 @@ For this plot we see that for age-adjusted suicide death rates, Non-hispanic Whi
 
 
 ## FIGURE 6 PLOT AND CODE
-```{r echo=FALSE, warning=FALSE}
+```{r echo=FALSE, warning=FALSE, fig.width=12, fig.height=8}
 ########## FIGURE 6 ##########
 
 #### Deaths from CVD (age-adjusted within broad age groups)
@@ -852,6 +856,8 @@ y.grob <- textGrob("Cardiovascular disease death rates (per 100,000)",
 x.grob <- textGrob("Year", 
                    gp=gpar(fontface="bold",  fontsize=15))
 grid.arrange(patchworkGrob(f6p), left = y.grob, bottom = x.grob)
+
+
 ```
 
 
@@ -861,7 +867,7 @@ For this plot, we can see the reason why there was a relatively large decrease i
 
 
 ## FIGURE 7 PLOT AND CODE
-```{r echo=FALSE, warning=FALSE}
+```{r echo=FALSE, warning=FALSE, fig.width=12, fig.height=8}
 ########## FIGURE 7 ##########
 
 #Pull out raw data
@@ -1062,6 +1068,7 @@ y.grob <- textGrob("Age-adjusted death rates for \nalcohol-related causes(per 10
 x.grob <- textGrob("Year", 
                    gp=gpar(fontface="bold",  fontsize=15))
 grid.arrange(patchworkGrob(F7p), left = y.grob, bottom = x.grob)
+
 ```
 
 
@@ -1078,7 +1085,12 @@ For one, the clear increase in the death rates from unintentional poisonings (op
 
 
 # Article Figures
-```{r echo=FALSE, warning=FALSE}
+
+The paper examines the recent decline in life expectancy in the United States, focusing on the period from 2015 to 2017, when life expectancy dropped for three consecutive years. The decline has affected nearly all race/ethnic and gender groups, and is attributed to several factors, including a rise in opioid overdose deaths, suicide, homicide, and Alzheimer’s disease. The slowdown in the decline of cardiovascular disease mortality has also contributed to the stagnation in life expectancy. The authors analyze mortality trends across different demographic groups, including race/ethnicity, gender, and age, and explore the geographic and socioeconomic dimensions of these trends. Additionally, the authors argue that interventions targeting opioid overdoses, suicide, and CVD are urgently needed to reverse the decline in life expectancy.
+
+
+```{r echo=FALSE, warning=FALSE, fig.width=12, fig.height=8}
+options(readr.show_col_types = FALSE)
 # Read data
 rawd <- read_csv("le-age-cause-decomp-2014-2017.csv")
 
@@ -1127,12 +1139,20 @@ raw15 <- raw %>%
 raw15_filtered <- raw15 %>%
   filter(codf != "Total Change")
 
-  # Vertical stacked bar chart 
+# Custom color palette with more than 12 colors
+# Custom color palette with enough colors
+custom_colors <- c(
+  "#e41a1c", "#377eb8", "#4daf4a", "#984ea3", "#ff7f00", "#ffff33", "#a65628", 
+  "#f781bf", "#999999", "#66c2a5", "#fc8d62", "#8da0cb", "#e78ac3", "#a6d854", "#ffd92f"
+)
+
+
+# Vertical stacked bar chart 
 ggplot(raw15_filtered, aes(x = raceeth, y = total, fill = codf)) +
   geom_bar(stat = "identity", position = "stack") +
   geom_hline(yintercept = 0, linetype = "dashed", color = "black") +  # Horizontal line at y=0
   facet_wrap(~gender, nrow = 1) +  # Side-by-side comparison of Women and Men
-  theme_minimal(base_size = 12) +  # Improve text readability
+  theme_minimal(base_size = 16) +  # Improve text readability
   labs(
     title = "Contribution of Leading Causes of Death to Life Expectancy Decline (2014-2017)",
     subtitle = "The largest decline during this period was for non-Hispanic Black men, primarily due to unintentional poisoning and homicide,\nwhich together accounted for more than 75% of their decline in life expectancy.",
@@ -1142,7 +1162,7 @@ ggplot(raw15_filtered, aes(x = raceeth, y = total, fill = codf)) +
     caption = "Data Source: CDC Mortality Statistics (2014-2017). Negative values indicate a decline in life expectancy."
   ) +
   theme(
-    plot.title = element_text(face = "bold", size = 16, hjust = 0.5),  # Center title
+    plot.title = element_text(face = "bold", size = 20, hjust = 0.5),  # Center title
     plot.subtitle = element_text(size = 14, hjust = 0.5),  # Center subtitle
     plot.caption = element_text(size = 12, hjust = 0.5),  # Center caption
     strip.text = element_text(size = 18, face = "bold"),  # Larger facet labels (Women/Men)
@@ -1150,8 +1170,10 @@ ggplot(raw15_filtered, aes(x = raceeth, y = total, fill = codf)) +
     axis.text.y = element_text(size = 12),  # Increase readability of y-axis
     legend.text = element_text(size = 12),  # Larger legend text
     legend.position = "bottom",  # Move legend to bottom
-    legend.title = element_text(size = 12, face = "bold")  # Make legend title larger
-  ) 
+    legend.title = element_text(size = 16, face = "bold")  # Make legend title larger
+  ) +
+  scale_fill_manual(values = custom_colors)  # Custom color mappin
+
 
 
 
@@ -1160,7 +1182,7 @@ ggplot(raw15_filtered, aes(x = raceeth, y = total, fill = codf)) +
 We can see in this stacked bar chart of causes for all available race/eth groups in both men and women, Black men see the largest negative decrease in life expectancy from 2014-2017. From this graph, it's clear the main factor for this, and as covered in the paper is unintentional poisoning (opiods). The other large factors contributing to this is homicides and crashses. We analyze the death rate of this group further in the next plot
 
 
-```{r echo=FALSE, warning=FALSE}
+```{r echo=FALSE, warning=FALSE, fig.width=12, fig.height=8}
 black_men_data <- fig2_data_combined %>%
   filter(gender == "Male", racen == "Non-Hispanic Black", year >= 2000) %>%
   mutate(
